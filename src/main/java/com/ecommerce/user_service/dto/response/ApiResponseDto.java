@@ -1,7 +1,5 @@
 package com.ecommerce.user_service.dto.response;
 
-import lombok.AllArgsConstructor;
-
 
 public class ApiResponseDto {
 

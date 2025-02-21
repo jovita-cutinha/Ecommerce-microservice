@@ -7,8 +7,6 @@ import com.ecommerce.user_service.dto.response.ApiResponseDto;
 import com.ecommerce.user_service.dto.response.AuthResponseDto;
 import com.ecommerce.user_service.service.UserService;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
-import org.keycloak.admin.client.Keycloak;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/user")
-@Slf4j
 public class UserController {
 
     @Autowired

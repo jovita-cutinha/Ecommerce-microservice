@@ -1,6 +1,6 @@
 package com.ecommerce.user_service.config;
 
-import lombok.extern.slf4j.Slf4j;
+
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.springframework.beans.factory.annotation.Value;
