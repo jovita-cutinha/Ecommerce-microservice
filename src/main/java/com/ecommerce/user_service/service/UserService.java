@@ -14,12 +14,16 @@ import jakarta.ws.rs.core.Response;
 import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.OAuth2Constants;
+import org.keycloak.TokenVerifier;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.authorization.client.AuthzClient;
 import org.keycloak.authorization.client.Configuration;
+import org.keycloak.common.VerificationException;
+import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -140,6 +144,7 @@ public class UserService {
                 userRepository.save(newUser);
                 LOGGER.info("User '" + request.getUsername() + "' details saved in the database");
 
+
                 return new ApiResponseDto("success", "User created successfully", keycloakUserId);
             } else {
                 LOGGER.severe("Failed to create user '" + request.getUsername() + "' in Keycloak: " + response.getStatusInfo().getReasonPhrase());
@@ -230,7 +235,121 @@ public class UserService {
       return new ApiResponseDto("error", "Logout failed", null);
     }
     }
-}
+
+    public ApiResponseDto updateProfile(UserRequestDto request, String token) {
+        try {
+            String userId = extractUserIdFromToken(token);
+            LOGGER.info("Updating profile for user ID: " + userId);
+
+            // Update Keycloak user details
+            RealmResource realmResource = keycloakAdminClient.realm(realm);
+            UserResource userResource = realmResource.users().get(userId);
+            UserRepresentation userRepresentation = userResource.toRepresentation();
+
+            userRepresentation.setFirstName(request.getFirstName());
+            userRepresentation.setLastName(request.getLastName());
+            userRepresentation.setEmail(request.getEmail());
+
+            userResource.update(userRepresentation);
+            LOGGER.info("User details updated in Keycloak for user ID: " + userId);
+
+            // Update MySQL database
+            User user = userRepository.findByKeycloakId(userId)
+                    .orElseThrow(() -> new UserServiceException("User not found", HttpStatus.NOT_FOUND));
+
+            System.out.println(user.getFirstName());
+            user.setFirstName(request.getFirstName());
+            user.setLastName(request.getLastName());
+            user.setEmail(request.getEmail());
+            user.setPhoneNumber(request.getPhoneNumber());
+            user.setCountry(request.getCountry());
+            user.setAddressLine(request.getAddressLine());
+            user.setUpdatedAt(LocalDateTime.now());
+
+            userRepository.save(user);
+            LOGGER.info("User details updated in MySQL for user ID: " + userId);
+
+            return new ApiResponseDto("success", "Profile updated successfully", null);
+        } catch (Exception e) {
+            LOGGER.severe("Profile update failed: " + e.getMessage());
+            throw new UserServiceException("Failed to update profile", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private String extractUserIdFromToken(String token) {
+        try {
+            String accessToken = token.replace("Bearer ", "");
+            AccessToken parsedToken = TokenVerifier.create(accessToken, AccessToken.class).getToken();
+            return parsedToken.getSubject();
+        } catch (VerificationException e) {
+            LOGGER.severe("Invalid access token: " + e.getMessage());
+            throw new UserServiceException("Invalid token", HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    public ApiResponseDto getAllUsers() {
+        try {
+            LOGGER.info("Fetching all users from database.");
+
+            // Fetch users from MySQL
+            List<User> users = userRepository.findAll();
+
+            if (users.isEmpty()) {
+                LOGGER.warning("No users found.");
+                return new ApiResponseDto("error", "No users found", Collections.emptyList());
+            }
+
+            LOGGER.info("Successfully fetched all users.");
+            return new ApiResponseDto("success", "Users retrieved successfully", users);
+        } catch (Exception e) {
+            LOGGER.severe("Error fetching users: " + e.getMessage());
+            throw new UserServiceException("Failed to fetch users", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ApiResponseDto getUserByToken(String token) {
+        try {
+            // Extract Keycloak ID from access token
+            String keycloakId = extractUserIdFromToken(token);
+
+            LOGGER.info("Fetching user details for Keycloak ID: " + keycloakId);
+
+            // Fetch user from MySQL
+            User user = userRepository.findByKeycloakId(keycloakId)
+                    .orElseThrow(() -> new UserServiceException("User not found", HttpStatus.NOT_FOUND));
+
+            // Fetch user details from Keycloak
+            RealmResource realmResource = keycloakAdminClient.realm(realm);
+            UserResource userResource = realmResource.users().get(keycloakId);
+            UserRepresentation keycloakUser = userResource.toRepresentation();
+
+            // Create a map to store user details
+            Map<String, Object> userDetails = new HashMap<>();
+            userDetails.put("id", user.getId());
+            userDetails.put("keycloakId", user.getKeycloakId());
+            userDetails.put("username", user.getUsername());
+            userDetails.put("email", keycloakUser.getEmail());
+            userDetails.put("firstName", keycloakUser.getFirstName());
+            userDetails.put("lastName", keycloakUser.getLastName());
+            userDetails.put("phoneNumber", user.getPhoneNumber());
+            userDetails.put("country", user.getCountry());
+            userDetails.put("addressLine", user.getAddressLine());
+            userDetails.put("role", user.getRole().name());
+            userDetails.put("createdAt", user.getCreatedAt());
+            userDetails.put("updatedAt", user.getUpdatedAt());
+
+            LOGGER.info("User details retrieved successfully for Keycloak ID: " + keycloakId);
+            return new ApiResponseDto("success", "User retrieved successfully", userDetails);
+        } catch (UserServiceException e) {
+            throw e;
+        } catch (Exception e) {
+            LOGGER.severe("Error fetching user details: " + e.getMessage());
+            throw new UserServiceException("Failed to fetch user details", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+        }
 
 
 

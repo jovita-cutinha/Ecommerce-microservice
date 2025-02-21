@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -35,6 +36,23 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<ApiResponseDto> logout(@RequestParam String refreshToken){
         return ResponseEntity.ok(userService.logout(refreshToken));
+    }
+
+    @PutMapping("/update-profile")
+    public  ResponseEntity<ApiResponseDto> uddateProfile( @RequestBody UserRequestDto request,
+                                                          @RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(userService.updateProfile(request, token));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/allUsers")
+    public ResponseEntity<ApiResponseDto> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponseDto> getUserByToken(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(userService.getUserByToken(token));
     }
 
 
