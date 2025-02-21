@@ -28,6 +28,7 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -50,6 +51,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Value("${keycloak.realm}")
     private String realm;
@@ -110,11 +114,16 @@ public class UserService {
                 // Assign the default CUSTOMER role
                 assignRoleToUser(keycloakUserId, clientId, DEFAULT_ROLE);
 
+                // **Encrypt the password before saving it**
+                String encryptedPassword = passwordEncoder.encode(request.getPassword());
+                LOGGER.info("Encrypted password generated successfully for user: " + request.getUsername());
+
+
                 // Save user details in the local database
                 User newUser = new User();
                 newUser.setUsername(request.getUsername());
                 newUser.setEmail(request.getEmail());
-                newUser.setPassword(request.getPassword()); // Store encrypted password in production
+                newUser.setPassword(encryptedPassword);
                 newUser.setPhoneNumber(request.getPhoneNumber());
                 newUser.setFirstName(request.getFirstName());
                 newUser.setLastName(request.getLastName());
@@ -125,7 +134,7 @@ public class UserService {
                 newUser.setRole(Role.CUSTOMER);
 
                 // Store Keycloak ID in local database
-                newUser.setId(keycloakUserId);
+                newUser.setKeycloakId(keycloakUserId);
 
                 // Save user in repository
                 userRepository.save(newUser);
