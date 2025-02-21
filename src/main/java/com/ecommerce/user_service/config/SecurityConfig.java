@@ -55,19 +55,24 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        // Converter to extract authorities from JWT claims
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_"); // Ensure roles have ROLE_ prefix
+        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_"); // Ensure all roles have "ROLE_" prefix
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
+            // Convert default authorities from JWT
             Collection<GrantedAuthority> authorities = grantedAuthoritiesConverter.convert(jwt);
 
+            // Extract "resource_access" claim which contains client roles
             Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
             if (resourceAccess != null) {
+                // Get roles associated with the "ecommerce" client in Keycloak
                 Map<String, Object> clientRoles = (Map<String, Object>) resourceAccess.get("ecommerce");
                 if (clientRoles != null) {
                     List<String> roles = (List<String>) clientRoles.get("roles");
-                    roles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role))); // Add ROLE_ prefix
+                    roles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role))); // Add "ROLE_" prefix
                 }
             }
             return authorities;
