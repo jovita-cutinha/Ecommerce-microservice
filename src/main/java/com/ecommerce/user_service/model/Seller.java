@@ -1,17 +1,20 @@
 package com.ecommerce.user_service.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users")
+@Table(name = "sellers")
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+@Builder
+public class Seller {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -24,14 +27,23 @@ public class User {
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
+    @Column(nullable = false, unique = true, length = 50)
+    private String businessName;
+
+    @Column(nullable = false, unique = true, length = 15)
+    private String gstNumber;
+
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(nullable = false, length = 100)
-    private String password;
-
     @Column(nullable = false, length = 15, unique = true)
     private String phoneNumber;
+
+    @Column(nullable = false, length = 200)
+    private String storeAddress;
+
+    @Column(nullable = false)
+    private String password;
 
     @Column(nullable = false, length = 20)
     private String firstName;
@@ -42,9 +54,6 @@ public class User {
     @Column(nullable = false, length = 100)
     private String country;
 
-    @Column(nullable = false, length = 200)
-    private String addressLine;
-
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -54,14 +63,6 @@ public class User {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     public String getKeycloakId() {
@@ -78,31 +79,6 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
     }
 
     public String getFirstName() {
@@ -129,12 +105,60 @@ public class User {
         this.country = country;
     }
 
-    public String getAddressLine() {
-        return addressLine;
+    public UUID getId() {
+        return id;
     }
 
-    public void setAddressLine(String addressLine) {
-        this.addressLine = addressLine;
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getBusinessName() {
+        return businessName;
+    }
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
+
+    public String getGstNumber() {
+        return gstNumber;
+    }
+
+    public void setGstNumber(String gstNumber) {
+        this.gstNumber = gstNumber;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getStoreAddress() {
+        return storeAddress;
+    }
+
+    public void setStoreAddress(String storeAddress) {
+        this.storeAddress = storeAddress;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -153,3 +177,4 @@ public class User {
         this.updatedAt = updatedAt;
     }
 }
+

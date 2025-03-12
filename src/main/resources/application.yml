@@ -42,7 +42,7 @@ keycloak:
   auth-server-url: http://localhost:8080
   realm: ecommerce-realm
   client-id: ecommerce
-  client-secret: q5SFGDfDNZtYqjW32l6KCkVUCv4O5rKf
+  client-secret: 4lFakjslcj1I2hRY2RTcVixhlRZCyAAw
 
 
 logging:
