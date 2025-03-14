@@ -327,4 +327,17 @@ public class KeycloakService {
         }
     }
 
+    public UUID getSellerIdByToken(String token) {
+        try {
+            // Extract Keycloak user ID from the access token
+            String keycloakId = extractUserIdFromToken(token);
+
+            LOGGER.info("Fetching user details for Keycloak ID: " + keycloakId);
+
+            return sellerService.getSellerIdByToken(keycloakId);
+        } catch (Exception e) {
+            LOGGER.severe("Fetching user failed: " + e.getMessage());
+            throw new UserServiceException("Failed to fetch user", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

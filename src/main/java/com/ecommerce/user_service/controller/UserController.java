@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -43,7 +45,7 @@ public class UserController {
     }
 
     @PutMapping("/update-profile")
-    public  ResponseEntity<ApiResponseDto> uddateProfile( @RequestBody UserRequestDto request,
+    public  ResponseEntity<ApiResponseDto> updateProfile( @RequestBody UserRequestDto request,
                                                           @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok(keycloakService.updateProfile(request, token));
     }
@@ -66,4 +68,10 @@ public class UserController {
     }
 
 
+//    ----------Interservice calls-----------
+
+    @GetMapping("/getSellerIdByToken")
+    public ResponseEntity<UUID> getSellerIdByToken(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(keycloakService.getSellerIdByToken(token));
+    }
 }
