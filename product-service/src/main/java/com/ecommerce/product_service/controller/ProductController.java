@@ -9,6 +9,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -30,6 +32,20 @@ public class ProductController {
     public ResponseEntity<Mono<ApiResponseDto>> updateProduct(@RequestParam String productId, @RequestBody ProductRequestDto request, @RequestHeader("Authorization") String authToken) {
         return ResponseEntity.ok(productService.updateProduct(productId, request, authToken));
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/getAllProducts")
+    public ResponseEntity<Mono<ApiResponseDto>> getAllProducts() {
+        return ResponseEntity.ok(productService.getAllProducts());
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER')")
+    @GetMapping("/getProduct")
+    public ResponseEntity<Mono<ApiResponseDto>> getProduct(@RequestParam String productId) {
+        return ResponseEntity.ok(productService.getProduct(productId));
+    }
+
+
 
 
 
