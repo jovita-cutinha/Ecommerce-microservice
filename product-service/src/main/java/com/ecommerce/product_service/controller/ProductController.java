@@ -34,23 +34,30 @@ public class ProductController {
         return ResponseEntity.ok(productService.updateProduct(productId, request, authToken));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
     @GetMapping("/getAllProducts")
     public ResponseEntity<Mono<ApiResponseDto>> getAllProducts() {
         return ResponseEntity.ok(productService.getAllProducts());
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
     @GetMapping("/getProduct")
     public ResponseEntity<Mono<ApiResponseDto>> getProductById(@RequestParam String productId) {
         return ResponseEntity.ok(productService.getProductById(productId));
     }
 
-    @PreAuthorize("hasRole('SELLER')")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ADMIN')")
     @GetMapping("/seller/{sellerId}")
     public ResponseEntity<Mono<ApiResponseDto>> getProductsBySellerId(@PathVariable UUID sellerId) {
         return ResponseEntity.ok(productService.getProductsBySellerId(sellerId));
     }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
+    @GetMapping("/category/{category}")
+    public ResponseEntity<Mono<ApiResponseDto>> getProductsByCategory(@PathVariable String category) {
+        return ResponseEntity.ok(productService.getProductsByCategory(category));
+    }
+
 
 
 

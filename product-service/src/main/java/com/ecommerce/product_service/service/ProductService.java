@@ -173,4 +173,20 @@ public class ProductService {
                 });
     }
 
+    public Mono<ApiResponseDto> getProductsByCategory(String category) {
+        logger.info("Fetching products for category: {}", category);
+
+        return productRepository.findByCategory(category)
+                .collectList()
+                .flatMap(products -> {
+                    if(products.isEmpty()) {
+                        logger.warn("No products found for category: {}", category);
+                        return Mono.just(new ApiResponseDto("error", "No products found for this category", null));
+                    }
+                    logger.info("Successfully fetched {} products for category: {}", products.size(), category);
+                    return Mono.just(new ApiResponseDto("success", "Products retrieved successfully", products));
+                })
+                .doOnError(error -> logger.error("Error fetching products for category {}: {}", category, error.getMessage()))
+                .onErrorResume(e -> Mono.just(new ApiResponseDto("error", "An error occurred while fetching products", null)));
+    }
 }

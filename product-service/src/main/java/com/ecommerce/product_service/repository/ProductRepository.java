@@ -10,4 +10,6 @@ import java.util.UUID;
 public interface ProductRepository extends ReactiveMongoRepository<Product, String> {
 
     Flux<Product> findBySellerId(UUID sellerId);
+
+    Flux<Product> findByCategory(String category);
 }
