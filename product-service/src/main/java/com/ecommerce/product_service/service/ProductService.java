@@ -2,20 +2,15 @@ package com.ecommerce.product_service.service;
 
 import com.ecommerce.product_service.dto.ApiResponseDto;
 import com.ecommerce.product_service.dto.ProductRequestDto;
-import com.ecommerce.product_service.exception.ProductServiceException;
 import com.ecommerce.product_service.model.Product;
 import com.ecommerce.product_service.repository.ProductRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -142,7 +137,7 @@ public class ProductService {
                 });
     }
 
-    public Mono<ApiResponseDto> getProduct(String productId) {
+    public Mono<ApiResponseDto> getProductById(String productId) {
         logger.info("Fetching product with ID: {}", productId);
 
         return productRepository.findById(productId)
@@ -152,6 +147,30 @@ public class ProductService {
                 })
                 .defaultIfEmpty(new ApiResponseDto("error", "Product not found", null))
                 .doOnError(e -> logger.error("Error fetching product: {}", e.getMessage()));
+    }
+
+    public Mono<ApiResponseDto> getProductsBySellerId(UUID sellerId) {
+        logger.info("Fetching products for seller ID: {}", sellerId);
+
+        // Retrieve all products for the given sellerId
+        Flux<Product> productsFlux = productRepository.findBySellerId(sellerId);
+
+        return productsFlux.hasElements()
+                .flatMap(hasElements -> {
+                    if (!hasElements) {
+                        logger.warn("No products found for seller ID: {}", sellerId);
+                        return Mono.just(new ApiResponseDto("error", "No products found for the seller", Collections.emptyList()));
+                    }
+
+                    return productsFlux.collectList()
+                            .doOnSuccess(productList ->
+                                    logger.info("Successfully fetched {} products for seller ID: {}", productList.size(), sellerId))
+                            .map(productList -> new ApiResponseDto("success", "Products retrieved successfully", productList));
+                })
+                .onErrorResume(e -> {
+                    logger.error("Error fetching products for seller ID {}: {}", sellerId, e.getMessage());
+                    return Mono.just(new ApiResponseDto("error", "An error occurred while fetching products", null));
+                });
     }
 
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/products")
@@ -28,8 +29,8 @@ public class ProductController {
     }
 
     @PreAuthorize("hasRole('SELLER')")
-    @PutMapping("/update")
-    public ResponseEntity<Mono<ApiResponseDto>> updateProduct(@RequestParam String productId, @RequestBody ProductRequestDto request, @RequestHeader("Authorization") String authToken) {
+    @PutMapping("/{productId}")
+    public ResponseEntity<Mono<ApiResponseDto>> updateProduct(@PathVariable String productId, @RequestBody ProductRequestDto request, @RequestHeader("Authorization") String authToken) {
         return ResponseEntity.ok(productService.updateProduct(productId, request, authToken));
     }
 
@@ -41,9 +42,18 @@ public class ProductController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER')")
     @GetMapping("/getProduct")
-    public ResponseEntity<Mono<ApiResponseDto>> getProduct(@RequestParam String productId) {
-        return ResponseEntity.ok(productService.getProduct(productId));
+    public ResponseEntity<Mono<ApiResponseDto>> getProductById(@RequestParam String productId) {
+        return ResponseEntity.ok(productService.getProductById(productId));
     }
+
+    @PreAuthorize("hasRole('SELLER')")
+    @GetMapping("/seller/{sellerId}")
+    public ResponseEntity<Mono<ApiResponseDto>> getProductsBySellerId(@PathVariable UUID sellerId) {
+        return ResponseEntity.ok(productService.getProductsBySellerId(sellerId));
+    }
+
+
+
 
 
 
