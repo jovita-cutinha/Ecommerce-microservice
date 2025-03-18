@@ -7,6 +7,7 @@ import com.ecommerce.product_service.model.Product;
 import com.ecommerce.product_service.repository.ProductRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class ProductService {
         this.sellerServiceClient = sellerServiceClient;
     }
 
+    @CacheEvict(value = "products", key = "'allProducts'")
     public ApiResponseDto createProduct(ProductRequestDto request, String authToken) {
         logger.info("Received request to create product: {}", request.name());
 
@@ -65,6 +67,7 @@ public class ProductService {
         }
     }
 
+    @CacheEvict(value = "products", key = "{#productId, 'allProducts'}")
     public ApiResponseDto updateProduct(String productId, ProductRequestDto request, String authToken) {
         logger.info("Received request to update product: {}", productId);
 
