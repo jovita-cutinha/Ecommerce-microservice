@@ -56,12 +56,17 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductsByCategory(category));
     }
 
-//    @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
-//    @GetMapping("/category/{category}/subcategory/{subcategory}")
-//    public ResponseEntity<ApiResponseDto> getProductsByCategoryAndSubcategory(@PathVariable String category, @PathVariable String subcategory) {
-//        return ResponseEntity.ok(productService.getProductsByCategoryAndSubcategory(category, subcategory));
-//    }
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
+    @GetMapping("/category/{category}/subcategory/{subcategory}")
+    public ResponseEntity<ApiResponseDto> getAllProductsBySubcategory(@PathVariable String category, @PathVariable String subcategory) {
+        return ResponseEntity.ok(productService.getAllProductsBySubcategory(category, subcategory));
+    }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER')")
+    @GetMapping("/{productId}")
+    public ResponseEntity<ApiResponseDto> deleteProductById(@PathVariable String productId) {
+        return ResponseEntity.ok(productService.deleteProductById(productId));
+    }
 
 
 

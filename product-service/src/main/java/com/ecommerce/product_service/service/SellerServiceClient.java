@@ -26,9 +26,11 @@ public class SellerServiceClient {
 
     @Cacheable(value = "sellerIds", key = "#token")  // Cache seller ID based on token
     public UUID getSellerIdByToken(String token) {
+
         logger.info("Fetching seller ID for token: {}", token);
 
         String url = userServiceBaseUrl + "/getSellerIdByToken";
+
         logger.debug("Making request to URL: {}", url);
 
         HttpHeaders headers = new HttpHeaders();

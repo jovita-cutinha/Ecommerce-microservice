@@ -130,6 +130,7 @@ public class ProductService {
 
     @Cacheable(value = "products", key = "'seller_' + #sellerId")
     public ApiResponseDto getProductsBySellerId(UUID sellerId) {
+
         logger.info("Fetching products for seller ID: {}", sellerId);
 
         List<Product> products = productRepository.findBySellerId(sellerId);
@@ -156,6 +157,31 @@ public class ProductService {
         return new ApiResponseDto("success", "Products retrieved successfully", products);
     }
 
-//    public Mono<ApiResponseDto> getProductsByCategoryAndSubcategory(String category, String subcategory) {
-//    }
+    @Cacheable(value = "products", key = "'subcategory_' + #subcategory")
+    public ApiResponseDto getAllProductsBySubcategory(String category, String subcategory) {
+        logger.info("Fetching products for subcategory: {}", subcategory);
+
+        List<Product> products = productRepository.findByCategoryAndSubcategory(category, subcategory);
+        if (products.isEmpty()) {
+            logger.warn("No products found for subcategory: {}", subcategory);
+            return new ApiResponseDto("error", "No products found for this subcategory", null);
+        }
+
+        logger.info("Successfully fetched {} products for subcategory: {}", products.size(), subcategory);
+        return new ApiResponseDto("success", "Products retrieved successfully", products);
+
+    }
+
+    @CacheEvict(value = "products", key = "'product_' + #id")
+    public ApiResponseDto deleteProductById(String productId) {
+        logger.info("Attempting to delete product with ID: {}", productId);
+
+        productRepository.findById(productId)
+                .orElseThrow(() -> new ProductServiceException("Product not found", HttpStatus.NOT_FOUND));
+
+        productRepository.deleteById(productId);
+
+        logger.info("Product with ID: {} successfully deleted from database", productId);
+        return new ApiResponseDto("success", "Product deleted successfully", null);
+    }
 }
