@@ -3,12 +3,10 @@ package com.ecommerce.product_service.controller;
 import com.ecommerce.product_service.dto.ApiResponseDto;
 import com.ecommerce.product_service.dto.ProductRequestDto;
 import com.ecommerce.product_service.service.ProductService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -24,39 +22,45 @@ public class ProductController {
 
     @PreAuthorize("hasRole('SELLER')")
     @PostMapping("/add")
-    public ResponseEntity<Mono<ApiResponseDto>> createProduct(@RequestBody ProductRequestDto request, @RequestHeader("Authorization") String authToken) {
+    public ResponseEntity<ApiResponseDto> createProduct(@RequestBody ProductRequestDto request, @RequestHeader("Authorization") String authToken) {
         return ResponseEntity.ok(productService.createProduct(request, authToken));
     }
 
     @PreAuthorize("hasRole('SELLER')")
     @PutMapping("/{productId}")
-    public ResponseEntity<Mono<ApiResponseDto>> updateProduct(@PathVariable String productId, @RequestBody ProductRequestDto request, @RequestHeader("Authorization") String authToken) {
+    public ResponseEntity<ApiResponseDto> updateProduct(@PathVariable String productId, @RequestBody ProductRequestDto request, @RequestHeader("Authorization") String authToken) {
         return ResponseEntity.ok(productService.updateProduct(productId, request, authToken));
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
     @GetMapping("/getAllProducts")
-    public ResponseEntity<Mono<ApiResponseDto>> getAllProducts() {
+    public ResponseEntity<ApiResponseDto> getAllProducts() {
         return ResponseEntity.ok(productService.getAllProducts());
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
     @GetMapping("/getProduct")
-    public ResponseEntity<Mono<ApiResponseDto>> getProductById(@RequestParam String productId) {
+    public ResponseEntity<ApiResponseDto> getProductById(@RequestParam String productId) {
         return ResponseEntity.ok(productService.getProductById(productId));
     }
 
     @PreAuthorize("hasRole('SELLER') or hasRole('ADMIN')")
     @GetMapping("/seller/{sellerId}")
-    public ResponseEntity<Mono<ApiResponseDto>> getProductsBySellerId(@PathVariable UUID sellerId) {
+    public ResponseEntity<ApiResponseDto> getProductsBySellerId(@PathVariable UUID sellerId) {
         return ResponseEntity.ok(productService.getProductsBySellerId(sellerId));
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
     @GetMapping("/category/{category}")
-    public ResponseEntity<Mono<ApiResponseDto>> getProductsByCategory(@PathVariable String category) {
+    public ResponseEntity<ApiResponseDto> getProductsByCategory(@PathVariable String category) {
         return ResponseEntity.ok(productService.getProductsByCategory(category));
     }
+
+//    @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
+//    @GetMapping("/category/{category}/subcategory/{subcategory}")
+//    public ResponseEntity<ApiResponseDto> getProductsByCategoryAndSubcategory(@PathVariable String category, @PathVariable String subcategory) {
+//        return ResponseEntity.ok(productService.getProductsByCategoryAndSubcategory(category, subcategory));
+//    }
 
 
 

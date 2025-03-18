@@ -1,19 +1,27 @@
 spring:
   application:
     name: product-service
+
   data:
     mongodb:
       uri: mongodb+srv://admin:admin@cluster1.oh4nu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1
       database: product-service
+    redis:
+      host: localhost
+      port: 6379
+
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080/realms/ecommerce-realm
 
+  cache:
+    type: redis
 
 server:
   port: 8086
 
 user-service:
   base-url: http://localhost:8085/user
+
