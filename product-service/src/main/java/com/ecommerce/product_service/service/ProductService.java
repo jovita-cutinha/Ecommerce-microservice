@@ -29,7 +29,7 @@ public class ProductService {
         this.sellerServiceClient = sellerServiceClient;
     }
 
-    @CacheEvict(value = "products", key = "'allProducts'")
+    @CacheEvict(value = "products", allEntries = true)
     public ApiResponseDto createProduct(ProductRequestDto request, String authToken) {
         logger.info("Received request to create product: {}", request.name());
 
@@ -65,7 +65,7 @@ public class ProductService {
         }
     }
 
-    @CacheEvict(value = "products", key = "{#productId, 'allProducts'}")
+    @CacheEvict(value = "products", allEntries = true)
     public ApiResponseDto updateProduct(String productId, ProductRequestDto request, String authToken) {
         logger.info("Received request to update product: {}", productId);
 
@@ -156,7 +156,7 @@ public class ProductService {
         return new ApiResponseDto("success", "Products retrieved successfully", products);
     }
 
-    @Cacheable(value = "products", key = "'subcategory_' + #subcategory")
+    @Cacheable(value = "products", key = "'category_' + #category + '_subcategory_' + #subcategory")
     public ApiResponseDto getAllProductsBySubcategory(String category, String subcategory) {
         logger.info("Fetching products for subcategory: {}", subcategory);
 
