@@ -100,7 +100,7 @@ public class ProductService {
         }
     }
 
-//    @Cacheable(value = "products", key = "'allProducts_' + #category + '_' + #subcategory + '_' + #brand + '_' + #minPrice + '_' + #maxPrice")
+    @Cacheable(value = "products", key = "'allProducts_' + #category + '_' + #subcategory + '_' + #brand + '_' + #minPrice + '_' + #maxPrice")
     public ApiResponseDto getAllProducts(String category, String subcategory, String brand, Double minPrice, Double maxPrice) {
 
         logger.info("Fetching all products from database.");
