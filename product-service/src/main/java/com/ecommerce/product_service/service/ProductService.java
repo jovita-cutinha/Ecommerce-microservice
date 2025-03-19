@@ -12,6 +12,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -30,8 +31,8 @@ public class ProductService {
     }
 
     @CacheEvict(value = "products", allEntries = true)
-    public ApiResponseDto createProduct(ProductRequestDto request, String authToken) {
-        logger.info("Received request to create product: {}", request.name());
+    public ApiResponseDto createProducts(List<ProductRequestDto> requests, String authToken) {
+        logger.info("Received request to create {} products", requests.size());
 
         UUID sellerId = sellerServiceClient.getSellerIdByToken(authToken);  // Cached Seller ID
         if (sellerId == null) {
@@ -40,28 +41,32 @@ public class ProductService {
 
         logger.info("Seller ID retrieved successfully: {}", sellerId);
 
-        Product product = new Product(
-                null,
-                request.name(),
-                request.description(),
-                request.price(),
-                request.category(),
-                request.subcategory(),
-                request.brand(),
-                sellerId,
-                request.images(),
-                request.specifications(),
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
+        List<Product> products = new ArrayList<>();
+        for (ProductRequestDto request : requests) {
+            Product product = new Product(
+                    null,
+                    request.name(),
+                    request.description(),
+                    request.price(),
+                    request.category(),
+                    request.subcategory(),
+                    request.brand(),
+                    sellerId,
+                    request.images(),
+                    request.specifications(),
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
+            );
+            products.add(product);
+        }
 
         try {
-            Product savedProduct = productRepository.save(product);
-            logger.info("Product saved successfully: {}", savedProduct.getId());
-            return new ApiResponseDto("success", "Product added successfully", savedProduct);
+            List<Product> savedProducts = productRepository.saveAll(products);
+            logger.info("{} products saved successfully", savedProducts.size());
+            return new ApiResponseDto("success", "Products added successfully", savedProducts);
         } catch (Exception e) {
-            logger.error("Error saving product: {}", e.getMessage(), e);
-            return new ApiResponseDto("error", "Failed to save product: " + e.getMessage(), null);
+            logger.error("Error saving products: {}", e.getMessage(), e);
+            return new ApiResponseDto("error", "Failed to save products: " + e.getMessage(), null);
         }
     }
 
@@ -182,5 +187,20 @@ public class ProductService {
 
         logger.info("Product with ID: {} successfully deleted from database", productId);
         return new ApiResponseDto("success", "Product deleted successfully", null);
+    }
+
+    public ApiResponseDto searchProducts(String query) {
+        logger.info("Searching for products with query: {}", query);
+
+        // Perform the search
+        List<Product> products = productRepository.searchByNameOrDescription(query);
+
+        if (products.isEmpty()) {
+            logger.warn("No products found for query: {}", query);
+            return new ApiResponseDto("error", "No products found", Collections.emptyList());
+        }
+
+        logger.info("Successfully found {} products for query: {}", products.size(), query);
+        return new ApiResponseDto("success", "Products retrieved successfully", products);
     }
 }

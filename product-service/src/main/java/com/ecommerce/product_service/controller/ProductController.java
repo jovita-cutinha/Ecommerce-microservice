@@ -6,6 +6,8 @@ import com.ecommerce.product_service.service.ProductService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -19,9 +21,9 @@ public class ProductController {
     }
 
     @PreAuthorize("hasRole('SELLER')")
-    @PostMapping("/add")
-    public ResponseEntity<ApiResponseDto> createProduct(@RequestBody ProductRequestDto request, @RequestHeader("Authorization") String authToken) {
-        return ResponseEntity.ok(productService.createProduct(request, authToken));
+    @PostMapping("/bulk-add")
+    public ResponseEntity<ApiResponseDto> createProducts(@RequestBody List<ProductRequestDto> requests, @RequestHeader("Authorization") String authToken) {
+        return ResponseEntity.ok(productService.createProducts(requests, authToken));
     }
 
     @PreAuthorize("hasRole('SELLER')")
@@ -65,12 +67,16 @@ public class ProductController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER')")
-    @GetMapping("/{productId}")
+    @DeleteMapping("/{productId}")
     public ResponseEntity<ApiResponseDto> deleteProductById(@PathVariable String productId) {
         return ResponseEntity.ok(productService.deleteProductById(productId));
     }
 
-
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponseDto> searchProducts(@RequestParam String query) {
+        return ResponseEntity.ok(productService.searchProducts(query));
+    }
 
 
 
