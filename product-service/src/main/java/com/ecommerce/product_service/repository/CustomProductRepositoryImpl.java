@@ -2,6 +2,7 @@ package com.ecommerce.product_service.repository;
 
 import com.ecommerce.product_service.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -15,7 +16,7 @@ public class CustomProductRepositoryImpl implements CustomProductRepository {
     private MongoTemplate mongoTemplate;
 
     @Override
-    public List<Product> findByFilters(String category, String subcategory, String brand, Double minPrice, Double maxPrice) {
+    public List<Product> findByFilters(String category, String subcategory, String brand, Double minPrice, Double maxPrice, int page, int size) {
         // Create a Query object
         Query query = new Query();
 
@@ -42,6 +43,9 @@ public class CustomProductRepositoryImpl implements CustomProductRepository {
 
         // Add the criteria to the query
         query.addCriteria(criteria);
+
+        // Apply pagination
+        query.skip((long) page * size).limit(size);
 
         // Execute the query and return the results
         return mongoTemplate.find(query, Product.class);

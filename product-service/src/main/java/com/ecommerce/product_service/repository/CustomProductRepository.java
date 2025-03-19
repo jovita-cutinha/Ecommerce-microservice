@@ -1,8 +1,10 @@
 package com.ecommerce.product_service.repository;
 
 import com.ecommerce.product_service.model.Product;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 public interface CustomProductRepository {
-    List<Product> findByFilters(String category, String subcategory, String brand, Double minPrice, Double maxPrice);
+    List<Product> findByFilters(String category, String subcategory, String brand, Double minPrice, Double maxPrice, int page, int size);
 }

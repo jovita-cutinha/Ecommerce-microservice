@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -105,19 +107,23 @@ public class ProductService {
         }
     }
 
-    @Cacheable(value = "products", key = "'allProducts_' + #category + '_' + #subcategory + '_' + #brand + '_' + #minPrice + '_' + #maxPrice")
-    public ApiResponseDto getAllProducts(String category, String subcategory, String brand, Double minPrice, Double maxPrice) {
+    @Cacheable(value = "products", key = "'allProducts_' + #category + '_' + #subcategory + '_' + #brand + '_' + #minPrice + '_' + #maxPrice + '_' + #page + '_' + #size")
+    public ApiResponseDto getAllProducts(String category, String subcategory, String brand, Double minPrice, Double maxPrice, int page, int size) {
 
-        logger.info("Fetching all products from database.");
+        logger.info("Fetching products with filters - Category: {}, Subcategory: {}, Brand: {}, Min Price: {}, Max Price: {}, Page: {}, Size: {}",
+                category, subcategory, brand, minPrice, maxPrice, page, size);
 
 
-        List<Product> productList = productRepository.findByFilters(category, subcategory, brand, minPrice, maxPrice);
+        // Fetch paginated products from the repository
+        List<Product> productList = productRepository.findByFilters(category, subcategory, brand, minPrice, maxPrice, page, size);
+
+        // Check if the page is empty
         if (productList.isEmpty()) {
-            logger.warn("No products found");
+            logger.warn("No products found for the given filters and page");
             return new ApiResponseDto("error", "No products found", Collections.emptyList());
         }
 
-        logger.info("Successfully fetched {} products.", productList.size());
+        logger.info("Successfully fetched {} products ", productList.size());
         return new ApiResponseDto("success", "Products retrieved successfully", productList);
     }
 
@@ -132,12 +138,13 @@ public class ProductService {
         return new ApiResponseDto("success", "Product retrieved successfully", product);
     }
 
-    @Cacheable(value = "products", key = "'seller_' + #sellerId")
-    public ApiResponseDto getProductsBySellerId(UUID sellerId) {
+    @Cacheable(value = "products", key = "'seller_' + #sellerId + '_page_' + #page + '_size_' + #size")
+    public ApiResponseDto getProductsBySellerId(UUID sellerId, int page, int size) {
 
         logger.info("Fetching products for seller ID: {}", sellerId);
 
-        List<Product> products = productRepository.findBySellerId(sellerId);
+        Pageable pageable = PageRequest.of(page, size); // Create pagination object
+        List<Product> products = productRepository.findBySellerId(sellerId, pageable);
         if (products.isEmpty()) {
             logger.warn("No products found for seller ID: {}", sellerId);
             return new ApiResponseDto("error", "No products found for the seller", Collections.emptyList());
@@ -147,11 +154,12 @@ public class ProductService {
         return new ApiResponseDto("success", "Products retrieved successfully", products);
     }
 
-    @Cacheable(value = "products", key = "'category_' + #category")
-    public ApiResponseDto getProductsByCategory(String category) {
+    @Cacheable(value = "products", key = "'category_' + #category + '_page_' + #page + '_size_' + #size")
+    public ApiResponseDto getProductsByCategory(String category, int page, int size) {
         logger.info("Fetching products for category: {}", category);
 
-        List<Product> products = productRepository.findByCategory(category);
+        Pageable pageable = PageRequest.of(page, size);
+        List<Product> products = productRepository.findByCategory(category,pageable);
         if (products.isEmpty()) {
             logger.warn("No products found for category: {}", category);
             return new ApiResponseDto("error", "No products found for this category", null);
@@ -161,11 +169,12 @@ public class ProductService {
         return new ApiResponseDto("success", "Products retrieved successfully", products);
     }
 
-    @Cacheable(value = "products", key = "'category_' + #category + '_subcategory_' + #subcategory")
-    public ApiResponseDto getAllProductsBySubcategory(String category, String subcategory) {
+    @Cacheable(value = "products", key = "'category_' + #category + '_subcategory_' + #subcategory + '_page_' + #page + '_size_' + #size")
+    public ApiResponseDto getAllProductsBySubcategory(String category, String subcategory, int page, int size) {
         logger.info("Fetching products for subcategory: {}", subcategory);
 
-        List<Product> products = productRepository.findByCategoryAndSubcategory(category, subcategory);
+        Pageable pageable = PageRequest.of(page, size);
+        List<Product> products = productRepository.findByCategoryAndSubcategory(category, subcategory, pageable);
         if (products.isEmpty()) {
             logger.warn("No products found for subcategory: {}", subcategory);
             return new ApiResponseDto("error", "No products found for this subcategory", null);
@@ -189,11 +198,12 @@ public class ProductService {
         return new ApiResponseDto("success", "Product deleted successfully", null);
     }
 
-    public ApiResponseDto searchProducts(String query) {
+    public ApiResponseDto searchProducts(String query, int page, int size) {
         logger.info("Searching for products with query: {}", query);
 
+        Pageable pageable = PageRequest.of(page, size);
         // Perform the search
-        List<Product> products = productRepository.searchByNameOrDescription(query);
+        List<Product> products = productRepository.searchByNameOrDescription(query, pageable);
 
         if (products.isEmpty()) {
             logger.warn("No products found for query: {}", query);

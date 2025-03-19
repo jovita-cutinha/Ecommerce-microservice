@@ -38,8 +38,10 @@ public class ProductController {
                                                          @RequestParam(required = false) String subcategory,
                                                          @RequestParam(required = false) String brand,
                                                          @RequestParam(required = false) Double minPrice,
-                                                         @RequestParam(required = false) Double maxPrice) {
-        return ResponseEntity.ok(productService.getAllProducts(category, subcategory, brand, minPrice, maxPrice));
+                                                         @RequestParam(required = false) Double maxPrice,
+                                                         @RequestParam(defaultValue = "0") int page,
+                                                         @RequestParam(defaultValue = "5") int size) {
+        return ResponseEntity.ok(productService.getAllProducts(category, subcategory, brand, minPrice, maxPrice, page, size));
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
@@ -50,20 +52,27 @@ public class ProductController {
 
     @PreAuthorize("hasRole('SELLER') or hasRole('ADMIN')")
     @GetMapping("/seller/{sellerId}")
-    public ResponseEntity<ApiResponseDto> getProductsBySellerId(@PathVariable UUID sellerId) {
-        return ResponseEntity.ok(productService.getProductsBySellerId(sellerId));
+    public ResponseEntity<ApiResponseDto> getProductsBySellerId(@PathVariable UUID sellerId,
+                                                                @RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "5") int size) {
+        return ResponseEntity.ok(productService.getProductsBySellerId(sellerId, page, size));
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
     @GetMapping("/category/{category}")
-    public ResponseEntity<ApiResponseDto> getProductsByCategory(@PathVariable String category) {
-        return ResponseEntity.ok(productService.getProductsByCategory(category));
+    public ResponseEntity<ApiResponseDto> getProductsByCategory(@PathVariable String category,
+                                                                @RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "5") int size) {
+        return ResponseEntity.ok(productService.getProductsByCategory(category, page, size));
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
     @GetMapping("/category/{category}/subcategory/{subcategory}")
-    public ResponseEntity<ApiResponseDto> getAllProductsBySubcategory(@PathVariable String category, @PathVariable String subcategory) {
-        return ResponseEntity.ok(productService.getAllProductsBySubcategory(category, subcategory));
+    public ResponseEntity<ApiResponseDto> getAllProductsBySubcategory(@PathVariable String category,
+                                                                      @PathVariable String subcategory,
+                                                                      @RequestParam(defaultValue = "0") int page,
+                                                                      @RequestParam(defaultValue = "5") int size) {
+        return ResponseEntity.ok(productService.getAllProductsBySubcategory(category, subcategory, page, size));
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER')")
@@ -74,8 +83,10 @@ public class ProductController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
     @GetMapping("/search")
-    public ResponseEntity<ApiResponseDto> searchProducts(@RequestParam String query) {
-        return ResponseEntity.ok(productService.searchProducts(query));
+    public ResponseEntity<ApiResponseDto> searchProducts(@RequestParam String query,
+                                                         @RequestParam(defaultValue = "0") int page,
+                                                         @RequestParam(defaultValue = "5") int size) {
+        return ResponseEntity.ok(productService.searchProducts(query, page, size));
     }
 
 
