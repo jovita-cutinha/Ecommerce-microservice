@@ -11,8 +11,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import javax.security.auth.callback.CallbackHandler;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -102,12 +100,13 @@ public class ProductService {
         }
     }
 
-    @Cacheable(value = "products", key = "'allProducts'")
-    public ApiResponseDto getAllProducts() {
+//    @Cacheable(value = "products", key = "'allProducts_' + #category + '_' + #subcategory + '_' + #brand + '_' + #minPrice + '_' + #maxPrice")
+    public ApiResponseDto getAllProducts(String category, String subcategory, String brand, Double minPrice, Double maxPrice) {
 
         logger.info("Fetching all products from database.");
 
-        List<Product> productList = productRepository.findAll();
+
+        List<Product> productList = productRepository.findByFilters(category, subcategory, brand, minPrice, maxPrice);
         if (productList.isEmpty()) {
             logger.warn("No products found");
             return new ApiResponseDto("error", "No products found", Collections.emptyList());
@@ -172,7 +171,7 @@ public class ProductService {
 
     }
 
-    @CacheEvict(value = "products", key = "'product_' + #id")
+    @CacheEvict(value = "products", allEntries = true)
     public ApiResponseDto deleteProductById(String productId) {
         logger.info("Attempting to delete product with ID: {}", productId);
 

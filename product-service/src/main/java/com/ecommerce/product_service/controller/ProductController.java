@@ -6,8 +6,6 @@ import com.ecommerce.product_service.service.ProductService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -34,8 +32,12 @@ public class ProductController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
     @GetMapping("/getAllProducts")
-    public ResponseEntity<ApiResponseDto> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+    public ResponseEntity<ApiResponseDto> getAllProducts(@RequestParam(required = false) String category,
+                                                         @RequestParam(required = false) String subcategory,
+                                                         @RequestParam(required = false) String brand,
+                                                         @RequestParam(required = false) Double minPrice,
+                                                         @RequestParam(required = false) Double maxPrice) {
+        return ResponseEntity.ok(productService.getAllProducts(category, subcategory, brand, minPrice, maxPrice));
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
