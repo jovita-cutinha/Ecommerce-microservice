@@ -73,4 +73,13 @@ public class InventoryService {
         return new ApiResponseDto("success","Inventory updated successfully", updatedInventory);
     }
 
+    public ApiResponseDto getInventoryByProductId(String productId) {
+        logger.info("Fetching inventory for productId: {}", productId);
+
+        Inventory inventory = inventoryRepository.findByProductId(productId);
+
+        logger.debug("Retrieved Inventory: {}", inventory);
+
+        return new ApiResponseDto("success", "Inventory retrieved successfully", inventory);
+    }
 }
