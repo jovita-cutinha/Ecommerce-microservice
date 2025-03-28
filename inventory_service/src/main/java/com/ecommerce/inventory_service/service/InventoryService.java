@@ -29,6 +29,7 @@ public class InventoryService {
         inventory.setSellerId(event.getSellerId());
         inventory.setAvailableQuantity(0);
         inventory.setReservedQuantity(0);
+        inventory.setSoldQuantity(0);
         inventory.setCreatedAt(LocalDateTime.now());
         inventory.setUpdatedAt(LocalDateTime.now());
 

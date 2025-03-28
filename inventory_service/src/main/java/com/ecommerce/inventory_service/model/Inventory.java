@@ -17,18 +17,20 @@ public class Inventory {
     private UUID sellerId;
     private int availableQuantity;
     private int reservedQuantity;
+    private int soldQuantity;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public Inventory() {
     }
 
-    public Inventory(Long id, String productId, UUID sellerId, int availableQuantity, int reservedQuantity, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public Inventory(Long id, String productId, UUID sellerId, int availableQuantity, int reservedQuantity, int soldQuantity, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.productId = productId;
         this.sellerId = sellerId;
         this.availableQuantity = availableQuantity;
         this.reservedQuantity = reservedQuantity;
+        this.soldQuantity = soldQuantity;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -87,5 +89,13 @@ public class Inventory {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public int getSoldQuantity() {
+        return soldQuantity;
+    }
+
+    public void setSoldQuantity(int soldQuantity) {
+        this.soldQuantity = soldQuantity;
     }
 }
