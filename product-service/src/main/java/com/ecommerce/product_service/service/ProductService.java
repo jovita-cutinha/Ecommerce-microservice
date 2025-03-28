@@ -1,17 +1,20 @@
 package com.ecommerce.product_service.service;
 
 import com.ecommerce.product_service.dto.ApiResponseDto;
+import com.ecommerce.product_service.dto.ProductEvent;
 import com.ecommerce.product_service.dto.ProductRequestDto;
 import com.ecommerce.product_service.exception.ProductServiceException;
 import com.ecommerce.product_service.model.Product;
 import com.ecommerce.product_service.repository.ProductRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,10 +29,15 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final SellerServiceClient sellerServiceClient;
+    private final KafkaTemplate<String, ProductEvent> kafkaTemplate;
 
-    public ProductService(ProductRepository productRepository, SellerServiceClient sellerServiceClient) {
+    @Value("${kafka.topics.product-events}")
+    private String productEventsTopic;
+
+    public ProductService(ProductRepository productRepository, SellerServiceClient sellerServiceClient, KafkaTemplate<String, ProductEvent> kafkaTemplate) {
         this.productRepository = productRepository;
         this.sellerServiceClient = sellerServiceClient;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @CacheEvict(value = "products", allEntries = true)
@@ -64,7 +72,18 @@ public class ProductService {
 
         try {
             List<Product> savedProducts = productRepository.saveAll(products);
-            logger.info("{} products saved successfully", savedProducts.size());
+            // Publish events for each created product
+            savedProducts.forEach(product -> {
+                ProductEvent event = new ProductEvent(
+                        "PRODUCT_CREATED",
+                        product.getId(),
+                        product.getSellerId(),
+                        LocalDateTime.now()
+                );
+                kafkaTemplate.send(productEventsTopic, product.getId(),event);
+            });
+
+            logger.info("{} products saved and events published", savedProducts.size());
             return new ApiResponseDto("success", "Products added successfully", savedProducts);
         } catch (Exception e) {
             logger.error("Error saving products: {}", e.getMessage(), e);
@@ -192,10 +211,28 @@ public class ProductService {
         productRepository.findById(productId)
                 .orElseThrow(() -> new ProductServiceException("Product not found", HttpStatus.NOT_FOUND));
 
-        productRepository.deleteById(productId);
+        try {
+            // Delete from database first
+            productRepository.deleteById(productId);
 
-        logger.info("Product with ID: {} successfully deleted from database", productId);
-        return new ApiResponseDto("success", "Product deleted successfully", null);
+            // Publish deletion event
+            ProductEvent event = new ProductEvent(
+                    "PRODUCT_DELETED",
+                    productId,
+                    null,
+                    LocalDateTime.now()
+            );
+
+            kafkaTemplate.send(productEventsTopic, productId, event);
+
+            logger.info("Product with ID: {} successfully deleted and event published", productId);
+            return new ApiResponseDto("success", "Product deleted successfully", null);
+
+        } catch (Exception e) {
+            logger.error("Error deleting product {}: {}", productId, e.getMessage());
+            throw new ProductServiceException("Failed to delete product: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     public ApiResponseDto searchProducts(String query, int page, int size) {
