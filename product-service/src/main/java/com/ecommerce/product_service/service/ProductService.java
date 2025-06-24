@@ -28,15 +28,15 @@ public class ProductService {
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
 
     private final ProductRepository productRepository;
-    private final SellerServiceClient sellerServiceClient;
+    private final InterServiceCall interServiceCall;
     private final KafkaTemplate<String, ProductEvent> kafkaTemplate;
 
     @Value("${kafka.topics.product-events}")
     private String productEventsTopic;
 
-    public ProductService(ProductRepository productRepository, SellerServiceClient sellerServiceClient, KafkaTemplate<String, ProductEvent> kafkaTemplate) {
+    public ProductService(ProductRepository productRepository, InterServiceCall sellerServiceClient, KafkaTemplate<String, ProductEvent> kafkaTemplate) {
         this.productRepository = productRepository;
-        this.sellerServiceClient = sellerServiceClient;
+        this.interServiceCall = sellerServiceClient;
         this.kafkaTemplate = kafkaTemplate;
     }
 
@@ -44,7 +44,7 @@ public class ProductService {
     public ApiResponseDto createProducts(List<ProductRequestDto> requests, String authToken) {
         logger.info("Received request to create {} products", requests.size());
 
-        UUID sellerId = sellerServiceClient.getSellerIdByToken(authToken);  // Cached Seller ID
+        UUID sellerId = interServiceCall.getSellerIdByToken(authToken);  // Cached Seller ID
         if (sellerId == null) {
             return new ApiResponseDto("error", "Seller ID not found", null);
         }
@@ -95,7 +95,7 @@ public class ProductService {
     public ApiResponseDto updateProduct(String productId, ProductRequestDto request, String authToken) {
         logger.info("Received request to update product: {}", productId);
 
-        UUID sellerId = sellerServiceClient.getSellerIdByToken(authToken);  // Cached Seller ID
+        UUID sellerId = interServiceCall.getSellerIdByToken(authToken);  // Cached Seller ID
         if (sellerId == null) {
             return new ApiResponseDto("error", "Unauthorized access", null);
         }

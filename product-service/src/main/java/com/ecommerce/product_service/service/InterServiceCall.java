@@ -7,7 +7,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.*;
-
 import java.util.UUID;
 
 @Service
@@ -25,17 +24,12 @@ public class InterServiceCall {
     public UUID getSellerIdByToken(String token) {
 
         logger.info("Fetching seller ID for token: {}", token);
-
         String url = userServiceBaseUrl + "/getSellerIdByToken";
-
         logger.debug("Making request to URL: {}", url);
-
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", token);  // Pass the auth token in the request header
         HttpEntity<String> entity = new HttpEntity<>(headers);
-
         ResponseEntity<UUID> response = restTemplate.exchange(url, HttpMethod.GET, entity, UUID.class);
-
         if (response.getStatusCode().is2xxSuccessful()) {
             UUID sellerId = response.getBody();
             logger.info("Successfully fetched seller ID: {}", sellerId);

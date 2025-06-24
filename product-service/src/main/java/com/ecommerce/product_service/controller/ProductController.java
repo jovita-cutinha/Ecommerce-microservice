@@ -32,7 +32,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.updateProduct(productId, request, authToken));
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CUSTOMER')")
     @GetMapping("/getAllProducts")
     public ResponseEntity<ApiResponseDto> getAllProducts(@RequestParam(required = false) String category,
                                                          @RequestParam(required = false) String subcategory,
@@ -45,7 +45,7 @@ public class ProductController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
-    @GetMapping("/getProduct")
+    @GetMapping("/getProductById")
     public ResponseEntity<ApiResponseDto> getProductById(@RequestParam String productId) {
         return ResponseEntity.ok(productService.getProductById(productId));
     }
