@@ -13,7 +13,7 @@ public class Inventory {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-incrementing ID
     private Long id;
 
-    private String productId;  // References product in Product Service
+    private String productId;
     private UUID sellerId;
     private int availableQuantity;
     private int reservedQuantity;

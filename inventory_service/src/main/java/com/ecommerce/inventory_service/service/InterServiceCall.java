@@ -15,9 +15,9 @@ import org.springframework.http.*;
 import java.util.UUID;
 
 @Service
-public class RestTemplateClient {
+public class InterServiceCall {
 
-    private static final Logger logger = LoggerFactory.getLogger(RestTemplateClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(InterServiceCall.class);
 
     @Value("${user-service.base-url}")
     private String userServiceBaseUrl;
@@ -25,27 +25,18 @@ public class RestTemplateClient {
     @Value("${product-service.base-url}")
     private String productServiceBaseUrl;
 
-    private final RestTemplate restTemplate;
-
-    public RestTemplateClient(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Cacheable(value = "sellerIds", key = "#token")  // Cache seller ID based on token
     public UUID getSellerIdByToken(String token) {
 
         logger.info("Fetching seller ID for token: {}", token);
-
         String url = userServiceBaseUrl + "/getSellerIdByToken";
-
         logger.debug("Making request to URL: {}", url);
-
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", token);  // Pass the auth token in the request header
         HttpEntity<String> entity = new HttpEntity<>(headers);
-
         ResponseEntity<UUID> response = restTemplate.exchange(url, HttpMethod.GET, entity, UUID.class);
-
         if (response.getStatusCode().is2xxSuccessful()) {
             UUID sellerId = response.getBody();
             logger.info("Successfully fetched seller ID: {}", sellerId);
@@ -68,8 +59,7 @@ public class RestTemplateClient {
         try {
             ResponseEntity<ApiResponseDto> response = restTemplate.exchange(url, HttpMethod.GET, entity, ApiResponseDto.class);
             ObjectMapper mapper = new ObjectMapper();
-            ProductDto product = mapper.convertValue(response.getBody().getData(), ProductDto.class);
-            return product;
+            return mapper.convertValue(response.getBody().getData(), ProductDto.class);
         } catch (RestClientException e) {
             logger.error("Failed to fetch product details for ID: {}", productId, e);
             throw new ResourceNotFoundException("Product not found with ID: " + productId);

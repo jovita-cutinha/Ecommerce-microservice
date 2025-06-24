@@ -31,4 +31,14 @@ public class InventoryController {
         return ResponseEntity.ok(inventoryService.getInventoryByProductId(productId));
     }
 
+    @PreAuthorize("hasRole('SELLER') or hasRole('ADMIN')")
+    @GetMapping("/low-stock")
+    public ResponseEntity<ApiResponseDto> getLowStockItems(
+            @RequestHeader("Authorization") String authToken,
+            @RequestParam(defaultValue = "5") int threshold,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(inventoryService.getLowStockItemsForSeller(authToken, threshold, page, size));
+    }
+
 }

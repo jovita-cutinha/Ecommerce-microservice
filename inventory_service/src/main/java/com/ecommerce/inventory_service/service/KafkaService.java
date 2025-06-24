@@ -7,12 +7,12 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ProductEventConsumer {
-    private static final Logger logger = LoggerFactory.getLogger(ProductEventConsumer.class);
+public class KafkaService {
+    private static final Logger logger = LoggerFactory.getLogger(KafkaService.class);
 
     private final InventoryService inventoryService;
 
-    public ProductEventConsumer(InventoryService inventoryService) {
+    public KafkaService(InventoryService inventoryService) {
         this.inventoryService = inventoryService;
     }
 
