@@ -11,18 +11,15 @@ import org.springframework.http.*;
 import java.util.UUID;
 
 @Service
-public class SellerServiceClient {
+public class InterServiceCall {
 
-    private static final Logger logger = LoggerFactory.getLogger(SellerServiceClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(InterServiceCall.class);
 
     @Value("${user-service.base-url}") // Fetch value from application.yml
     private String userServiceBaseUrl;
 
-    private final RestTemplate restTemplate;
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    public SellerServiceClient(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
 
     @Cacheable(value = "sellerIds", key = "#token")  // Cache seller ID based on token
     public UUID getSellerIdByToken(String token) {
