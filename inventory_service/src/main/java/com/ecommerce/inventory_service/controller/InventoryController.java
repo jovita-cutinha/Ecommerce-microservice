@@ -24,7 +24,7 @@ public class InventoryController {
         return ResponseEntity.ok(inventoryService.updateInventory(inventoryId, availableQuantity));
     }
 
-    @PreAuthorize("hasRole('SELLER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ADMIN') or hasRole('CUSTOMER')")
     @GetMapping("/product/{productId}")
     public ResponseEntity<ApiResponseDto> getInventoryByProductId(
             @PathVariable String productId) {

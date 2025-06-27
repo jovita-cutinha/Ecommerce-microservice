@@ -49,7 +49,7 @@ public class InterServiceCall {
 
     @Cacheable(value = "products", key = "#productId")
     public ProductDto getProductById(String productId, String token) {
-        String url = productServiceBaseUrl + "/getProductById?productId=" + productId;
+        String url = productServiceBaseUrl + "/" + productId;
 
         logger.info("Fetching product details from Product Service: {}", url);
         HttpHeaders headers = new HttpHeaders();
