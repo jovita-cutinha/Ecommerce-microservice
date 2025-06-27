@@ -32,3 +32,5 @@ spring:
         jwt:
           issuer-uri: http://localhost:8080/realms/ecommerce-realm
 
+inventory-service:
+  base-url: http://localhost:8087/inventory
