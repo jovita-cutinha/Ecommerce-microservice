@@ -4,6 +4,7 @@ import com.ecommerce.inventory_service.dto.ApiResponseDto;
 import com.ecommerce.inventory_service.service.InventoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,11 +35,11 @@ public class InventoryController {
     @PreAuthorize("hasRole('SELLER') or hasRole('ADMIN')")
     @GetMapping("/low-stock")
     public ResponseEntity<ApiResponseDto> getLowStockItems(
-            @RequestHeader("Authorization") String authToken,
+            JwtAuthenticationToken principal,
             @RequestParam(defaultValue = "5") int threshold,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(inventoryService.getLowStockItemsForSeller(authToken, threshold, page, size));
+        return ResponseEntity.ok(inventoryService.getLowStockItemsForSeller(principal, threshold, page, size));
     }
 
 }

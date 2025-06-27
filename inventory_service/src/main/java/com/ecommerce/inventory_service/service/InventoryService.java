@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -87,7 +88,8 @@ public class InventoryService {
         return new ApiResponseDto("success", "Inventory retrieved successfully", inventory);
     }
 
-    public ApiResponseDto getLowStockItemsForSeller(String token, int threshold, int page, int size) {
+    public ApiResponseDto getLowStockItemsForSeller(JwtAuthenticationToken principal, int threshold, int page, int size) {
+        String token = principal.getToken().getTokenValue();
         // Step 1: Get Seller ID from token
         UUID sellerId = interServiceCall.getSellerIdByToken(token);
         if (sellerId == null) {
