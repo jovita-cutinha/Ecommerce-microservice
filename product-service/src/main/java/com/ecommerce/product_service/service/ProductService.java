@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -41,10 +42,11 @@ public class ProductService {
     }
 
     @CacheEvict(value = "products", allEntries = true)
-    public ApiResponseDto createProducts(List<ProductRequestDto> requests, String authToken) {
+    public ApiResponseDto createProducts(List<ProductRequestDto> requests, JwtAuthenticationToken principal) {
+        String token = principal.getToken().getTokenValue();
         logger.info("Received request to create {} products", requests.size());
 
-        UUID sellerId = interServiceCall.getSellerIdByToken(authToken);  // Cached Seller ID
+        UUID sellerId = interServiceCall.getSellerIdByToken(token);  // Cached Seller ID
         if (sellerId == null) {
             return new ApiResponseDto("error", "Seller ID not found", null);
         }
@@ -92,10 +94,11 @@ public class ProductService {
     }
 
     @CacheEvict(value = "products", allEntries = true)
-    public ApiResponseDto updateProduct(String productId, ProductRequestDto request, String authToken) {
+    public ApiResponseDto updateProduct(String productId, ProductRequestDto request, JwtAuthenticationToken principal) {
+        String token = principal.getToken().getTokenValue();
         logger.info("Received request to update product: {}", productId);
 
-        UUID sellerId = interServiceCall.getSellerIdByToken(authToken);  // Cached Seller ID
+        UUID sellerId = interServiceCall.getSellerIdByToken(token);  // Cached Seller ID
         if (sellerId == null) {
             return new ApiResponseDto("error", "Unauthorized access", null);
         }

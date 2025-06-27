@@ -5,6 +5,7 @@ import com.ecommerce.product_service.dto.ProductRequestDto;
 import com.ecommerce.product_service.service.ProductService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,14 +23,14 @@ public class ProductController {
 
     @PreAuthorize("hasRole('SELLER')")
     @PostMapping("/bulk-add")
-    public ResponseEntity<ApiResponseDto> createProducts(@RequestBody List<ProductRequestDto> requests, @RequestHeader("Authorization") String authToken) {
-        return ResponseEntity.ok(productService.createProducts(requests, authToken));
+    public ResponseEntity<ApiResponseDto> createProducts(@RequestBody List<ProductRequestDto> requests, JwtAuthenticationToken principal) {
+        return ResponseEntity.ok(productService.createProducts(requests, principal));
     }
 
     @PreAuthorize("hasRole('SELLER')")
     @PutMapping("/{productId}")
-    public ResponseEntity<ApiResponseDto> updateProduct(@PathVariable String productId, @RequestBody ProductRequestDto request, @RequestHeader("Authorization") String authToken) {
-        return ResponseEntity.ok(productService.updateProduct(productId, request, authToken));
+    public ResponseEntity<ApiResponseDto> updateProduct(@PathVariable String productId, @RequestBody ProductRequestDto request, JwtAuthenticationToken principal) {
+        return ResponseEntity.ok(productService.updateProduct(productId, request, principal));
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('CUSTOMER')")
@@ -45,8 +46,8 @@ public class ProductController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER') or hasRole('CUSTOMER')")
-    @GetMapping("/getProductById")
-    public ResponseEntity<ApiResponseDto> getProductById(@RequestParam String productId) {
+    @GetMapping("/{productId}")
+    public ResponseEntity<ApiResponseDto> getProductById(@PathVariable String productId) {
         return ResponseEntity.ok(productService.getProductById(productId));
     }
 
