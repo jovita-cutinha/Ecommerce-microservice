@@ -10,7 +10,6 @@ import com.ecommerce.cart_service.model.CartItem;
 import com.ecommerce.cart_service.repository.CartRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -22,9 +21,6 @@ public class CartService {
     private final CartRepository cartRepository;
     private final InterServiceCall interServiceCall;
     private static final Logger logger = LoggerFactory.getLogger(CartService.class);
-
-    @Value("${inventory-service.base-url}")
-    private String inventoryServiceBaseUrl;
 
     public CartService(CartRepository cartRepository, InterServiceCall interServiceCall) {
         this.cartRepository = cartRepository;
