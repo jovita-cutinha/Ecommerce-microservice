@@ -34,3 +34,6 @@ spring:
 
 inventory-service:
   base-url: http://localhost:8087/inventory
+
+cart-service:
+  base-url: http://localhost:8088/cart

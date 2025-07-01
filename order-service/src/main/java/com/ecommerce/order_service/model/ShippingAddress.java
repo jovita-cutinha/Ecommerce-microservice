@@ -12,6 +12,9 @@ public class ShippingAddress {
     private String country;
     private String phoneNumber;
 
+    public ShippingAddress() {
+    }
+
     public String getFullName() {
         return fullName;
     }

@@ -3,16 +3,16 @@ package com.ecommerce.order_service.dto;
 
 public class OrderItemDTO {
 
-    private Long productId;
+    private String productId;
     private String productName;
     private Integer quantity;
     private Double pricePerUnit;
 
-    public Long getProductId() {
+    public String getProductId() {
         return productId;
     }
 
-    public void setProductId(Long productId) {
+    public void setProductId(String productId) {
         this.productId = productId;
     }
 

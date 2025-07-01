@@ -2,8 +2,6 @@ package com.ecommerce.order_service.model;
 
 import jakarta.persistence.*;
 
-import java.math.BigDecimal;
-
 @Entity
 @Table(name = "order_items")
 public class OrderItem {
@@ -15,6 +13,9 @@ public class OrderItem {
     private String productName;
     private Integer quantity;
     private Double pricePerUnit;
+
+    public OrderItem() {
+    }
 
     public Long getId() {
         return id;

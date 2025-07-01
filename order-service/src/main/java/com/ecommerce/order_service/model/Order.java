@@ -1,13 +1,13 @@
 package com.ecommerce.order_service.model;
 
 import jakarta.persistence.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "orders")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,9 +20,6 @@ public class Order {
 
     private BigDecimal totalAmount;
 
-    private String paymentStatus; // e.g., PENDING, COMPLETED, FAILED
-    private String paymentMethod; // e.g., CREDIT_CARD, UPI, COD
-
     // Unidirectional OneToMany
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "order_id") // creates FK in order_items table
@@ -30,6 +27,9 @@ public class Order {
 
     @Embedded
     private ShippingAddress shippingAddress;
+
+    public Order() {
+    }
 
     public Long getId() {
         return id;
@@ -71,22 +71,6 @@ public class Order {
         this.totalAmount = totalAmount;
     }
 
-    public String getPaymentStatus() {
-        return paymentStatus;
-    }
-
-    public void setPaymentStatus(String paymentStatus) {
-        this.paymentStatus = paymentStatus;
-    }
-
-    public String getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public void setPaymentMethod(String paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
-
     public List<OrderItem> getOrderItems() {
         return orderItems;
     }
@@ -103,14 +87,12 @@ public class Order {
         this.shippingAddress = shippingAddress;
     }
 
-    public Order(Long id, String userKeycloakId, LocalDateTime orderDate, String status, BigDecimal totalAmount, String paymentStatus, String paymentMethod, List<OrderItem> orderItems, ShippingAddress shippingAddress) {
+    public Order(Long id, String userKeycloakId, LocalDateTime orderDate, String status, BigDecimal totalAmount, List<OrderItem> orderItems, ShippingAddress shippingAddress) {
         this.id = id;
         this.userKeycloakId = userKeycloakId;
         this.orderDate = orderDate;
         this.status = status;
         this.totalAmount = totalAmount;
-        this.paymentStatus = paymentStatus;
-        this.paymentMethod = paymentMethod;
         this.orderItems = orderItems;
         this.shippingAddress = shippingAddress;
     }

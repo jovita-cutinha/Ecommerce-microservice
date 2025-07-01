@@ -1,30 +1,22 @@
 package com.ecommerce.order_service.dto;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class OrderRequestDTO {
 
-    private Long userId;
-    private String paymentMethod;
+    private BigDecimal totalAmount;
 
     private ShippingAddressDTO shippingAddress;
 
     private List<OrderItemDTO> orderItems;
 
-    public Long getUserId() {
-        return userId;
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public void setPaymentMethod(String paymentMethod) {
-        this.paymentMethod = paymentMethod;
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
     }
 
     public ShippingAddressDTO getShippingAddress() {
