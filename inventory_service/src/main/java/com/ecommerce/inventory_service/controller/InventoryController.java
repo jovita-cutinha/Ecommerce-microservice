@@ -1,6 +1,7 @@
 package com.ecommerce.inventory_service.controller;
 
 import com.ecommerce.inventory_service.dto.ApiResponseDto;
+import com.ecommerce.inventory_service.model.Inventory;
 import com.ecommerce.inventory_service.service.InventoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,6 +41,24 @@ public class InventoryController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(inventoryService.getLowStockItemsForSeller(principal, threshold, page, size));
+    }
+
+   // ------------------- Inter service call------------------------
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CUSTOMER')")
+    @PutMapping("/reserve/{productId}")
+    public ResponseEntity<Inventory> reserveProduct(
+            @PathVariable String productId,
+            @RequestParam int quantity) {
+        return ResponseEntity.ok(inventoryService.reserveProductQuantity(productId, quantity));
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CUSTOMER')")
+    @PutMapping("/release-reserve/{productId}")
+    public ResponseEntity<Inventory> releaseReserveProduct(
+            @PathVariable String productId,
+            @RequestParam int quantity) {
+        return ResponseEntity.ok(inventoryService.releaseReserveProductQuantity(productId, quantity));
     }
 
 }

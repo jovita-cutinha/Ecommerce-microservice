@@ -128,4 +128,52 @@ public class InventoryService {
         logger.info("Found {} low stock items for seller ID: {}", results.size(), sellerId);
         return new ApiResponseDto("success", "Low stock items retrieved for seller", results);
     }
+
+    public Inventory reserveProductQuantity(String productId, int quantity) {
+        // 1. Find the inventory item
+        Inventory inventory = inventoryRepository.findByProductId(productId);
+        if(inventory == null){
+            throw new InventoryServiceException("Inventory not found with id: " + productId, HttpStatus.NOT_FOUND);
+        }
+
+        // 2. Validate available quantity
+        if (inventory.getAvailableQuantity() < quantity) {
+            throw new InventoryServiceException(
+                    "Insufficient stock available", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        // 3. Perform the reservation
+        inventory.setAvailableQuantity(inventory.getAvailableQuantity() - quantity);
+        inventory.setReservedQuantity(inventory.getReservedQuantity() + quantity);
+
+        // 4. Save the changes
+        inventoryRepository.save(inventory);
+
+        // 5. Log the reservation (optional)
+        logger.info("Reserved {} units of product {} ", quantity, inventory.getProductId());
+
+        // 6. Return success response
+        return inventory;
+    }
+
+    public Inventory releaseReserveProductQuantity(String productId, int quantity) {
+        // 1. Find the inventory item
+        Inventory inventory = inventoryRepository.findByProductId(productId);
+        if(inventory == null){
+            throw new InventoryServiceException("Inventory not found with id: " + productId, HttpStatus.NOT_FOUND);
+        }
+
+        // 2. Release the reservation
+        inventory.setAvailableQuantity(inventory.getAvailableQuantity() + quantity);
+        inventory.setReservedQuantity(inventory.getReservedQuantity() - quantity);
+
+        // 3. Save the changes
+        inventoryRepository.save(inventory);
+
+        // 4. Log the reservation (optional)
+        logger.info("Released Reserved  {} units of product {} ", quantity, inventory.getProductId());
+
+        // 6. Return success response
+        return inventory;
+    }
 }
