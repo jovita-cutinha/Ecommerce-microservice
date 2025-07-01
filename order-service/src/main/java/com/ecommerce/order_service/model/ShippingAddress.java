@@ -11,8 +11,17 @@ public class ShippingAddress {
     private String postalCode;
     private String country;
     private String phoneNumber;
+    private String email;
 
     public ShippingAddress() {
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getFullName() {
@@ -71,7 +80,7 @@ public class ShippingAddress {
         this.phoneNumber = phoneNumber;
     }
 
-    public ShippingAddress(String fullName, String street, String city, String state, String postalCode, String country, String phoneNumber) {
+    public ShippingAddress(String fullName, String street, String city, String state, String postalCode, String country, String phoneNumber, String email) {
         this.fullName = fullName;
         this.street = street;
         this.city = city;
@@ -79,6 +88,7 @@ public class ShippingAddress {
         this.postalCode = postalCode;
         this.country = country;
         this.phoneNumber = phoneNumber;
+        this.email = email;
     }
 }
 

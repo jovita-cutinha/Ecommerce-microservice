@@ -15,6 +15,7 @@ public class ShippingAddressMapper {
         address.setPostalCode(dto.getPostalCode());
         address.setCountry(dto.getCountry());
         address.setPhoneNumber(dto.getPhoneNumber());
+        address.setEmail(dto.getEmail());
         return address;
     }
 }
